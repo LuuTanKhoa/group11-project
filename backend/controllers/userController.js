@@ -1,20 +1,60 @@
-// Mảng tạm để lưu danh sách người dùng
-const users = [];
+const User = require('../models/User');
 
-// [GET] /users - Lấy danh sách tất cả người dùng
-const getUsers = (req, res) => {
-  res.json(users);
+// GET /users → Lấy danh sách user
+const getUsers = async (req, res) => {
+    try {
+        const users = await User.find();
+        res.json(users);
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
 };
 
-// [POST] /users - Thêm người dùng mới
-const addUser = (req, res) => {
-  const user = req.body; // Lấy dữ liệu người dùng từ body
-  users.push(user); // Thêm vào mảng users
-  res.status(201).json({
-    message: "User added successfully",
-    data: user
-  });
+// POST /users → Thêm user mới
+const createUser = async (req, res) => {
+    try {
+        const { name, email } = req.body;
+        if (!name || !email) {
+            return res.status(400).json({ message: "Name and email are required" });
+        }
+        const newUser = new User({ name, email });
+        const savedUser = await newUser.save();
+        res.status(201).json(savedUser);
+    } catch (err) {
+        res.status(400).json({ message: err.message });
+    }
 };
 
-// Xuất (export) các hàm để dùng ở file khác
-module.exports = { getUsers, addUser };
+// PUT /users/:id → Sửa user
+const updateUser = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { name, email } = req.body;
+
+        const updatedUser = await User.findByIdAndUpdate(
+            id,
+            { name, email },
+            { new: true }
+        );
+
+        if (!updatedUser) return res.status(404).json({ message: "User not found" });
+        res.json(updatedUser);
+    } catch (err) {
+        res.status(400).json({ message: err.message });
+    }
+};
+
+// DELETE /users/:id → Xóa user
+const deleteUser = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const deletedUser = await User.findByIdAndDelete(id);
+
+        if (!deletedUser) return res.status(404).json({ message: "User not found" });
+        res.json({ message: "User deleted successfully" });
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+};
+
+module.exports = { getUsers, createUser, updateUser, deleteUser };
