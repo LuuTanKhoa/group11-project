@@ -1,22 +1,13 @@
-import React, { useState } from "react";
-import UserList from "./UserList";
-import AddUser from "./AddUser";
+import React from 'react';
+import UserList from './UserList';
 
-function App() {
-  const [users, setUsers] = useState([]);
-
-  // Hàm để thêm người dùng vào state
-  const handleAddUser = (newUser) => {
-    setUsers((prevUsers) => [...prevUsers, newUser]);
-  };
-
+const App = () => {
   return (
     <div>
-      <h1>Quản lý người dùng</h1>
-      <AddUser onAddUser={handleAddUser} /> {/* Gửi hàm thêm người dùng */}
-      <UserList users={users} /> {/* Hiển thị danh sách người dùng */}
+      <h1>Ứng Dụng Quản Lý Người Dùng</h1>
+      <UserList />
     </div>
   );
-}
+};
 
 export default App;
