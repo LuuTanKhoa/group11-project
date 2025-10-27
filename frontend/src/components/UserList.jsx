@@ -4,6 +4,9 @@ import axios from "axios";
 const UserList = ({ reload, onEdit }) => {
   const [users, setUsers] = useState([]);
   const [error, setError] = useState("");
+  const [editingUser, setEditingUser] = useState(null); // user đang sửa
+  const [editName, setEditName] = useState("");
+  const [editEmail, setEditEmail] = useState("");
 
   // 🔗 Địa chỉ backend (chỉnh lại nếu khác)
   const BACKEND_URL = "http://10.10.8.244:3000/users";
@@ -33,13 +36,26 @@ const UserList = ({ reload, onEdit }) => {
     }
   };
 
-  // ✏️ Xử lý sự kiện SỬA
+  // ✏️ Bắt đầu chỉnh sửa
   const handleEdit = (user) => {
-    if (onEdit) {
-      onEdit(user); // gửi user được chọn lên App.js để hiển thị form sửa
-    } else {
-      console.log("Edit user:", user);
-      alert("Chưa cấu hình hàm onEdit trong App.js!");
+    setEditingUser(user);
+    setEditName(user.name);
+    setEditEmail(user.email);
+  };
+
+  // 💾 Gửi PUT request để cập nhật user
+  const handleUpdate = async () => {
+    try {
+      const updatedUser = { name: editName, email: editEmail };
+      const res = await axios.put(`${BACKEND_URL}/${editingUser._id}`, updatedUser);
+
+      // Cập nhật danh sách trên frontend
+      setUsers(users.map((u) => (u._id === editingUser._id ? res.data : u)));
+      setEditingUser(null);
+      alert("Cập nhật thành công!");
+    } catch (err) {
+      console.error("Error updating user:", err);
+      alert("Không thể cập nhật. Kiểm tra kết nối backend!");
     }
   };
 
@@ -49,6 +65,33 @@ const UserList = ({ reload, onEdit }) => {
 
       {/* Hiển thị lỗi nếu có */}
       {error && <p style={{ color: "red" }}>{error}</p>}
+
+      {/* Nếu đang sửa thì hiển thị form sửa */}
+      {editingUser && (
+        <div style={{ border: "1px solid gray", padding: "10px", marginBottom: "20px" }}>
+          <h3>Chỉnh sửa người dùng</h3>
+          <label>
+            Tên:{" "}
+            <input
+              type="text"
+              value={editName}
+              onChange={(e) => setEditName(e.target.value)}
+            />
+          </label>
+          <br />
+          <label>
+            Email:{" "}
+            <input
+              type="email"
+              value={editEmail}
+              onChange={(e) => setEditEmail(e.target.value)}
+            />
+          </label>
+          <br />
+          <button onClick={handleUpdate}>Lưu</button>
+          <button onClick={() => setEditingUser(null)}>Hủy</button>
+        </div>
+      )}
 
       {/* Hiển thị danh sách người dùng */}
       {users.length === 0 ? (
