@@ -4,14 +4,32 @@ import UserList from "./components/UserList";
 
 function App() {
   const [reload, setReload] = useState(false);
+  const [editingUser, setEditingUser] = useState(null); // 👈 Thêm state lưu user đang sửa
 
-  const handleUserAdded = () => setReload(!reload);
+  // Gọi khi thêm hoặc cập nhật user xong
+  const handleUserChanged = () => {
+    setReload(!reload); // tải lại danh sách
+    setEditingUser(null); // reset form
+  };
 
   return (
-    <div className="App">
+    <div className="App" style={{ padding: "20px" }}>
       <h1>React User Management</h1>
-      <AddUser onUserAdded={handleUserAdded} />
-      <UserList reload={reload} />
+
+      {/* Form thêm / sửa người dùng */}
+      <AddUser
+        onUserAdded={handleUserChanged}
+        reload={reload}
+        setReload={setReload}
+        editingUser={editingUser}
+        setEditingUser={setEditingUser}
+      />
+
+      {/* Danh sách người dùng */}
+      <UserList
+        reload={reload}
+        onEdit={setEditingUser} // 👈 Khi nhấn “Sửa” trong UserList
+      />
     </div>
   );
 }
