@@ -1,62 +1,62 @@
-## \# Group 11 Project
+\# Group 11 Project
 
-## 
 
-## \## Mục tiêu
 
-## Xây dựng ứng dụng web có kết nối giữa \*\*Frontend – Backend – Database\*\* nhằm thực hành kỹ năng Git, Node.js, React và MongoDB.
+\## Mục tiêu
 
-## 
+Xây dựng ứng dụng web có kết nối giữa \*\*Frontend – Backend – Database\*\* nhằm thực hành kỹ năng Git, Node.js, React và MongoDB.
 
-## ---
 
-## 
 
-## \##  Công nghệ sử dụng
+---
 
-## | Thành phần | Công nghệ |
 
-## |-------------|------------|
 
-## | Frontend | ReactJS, Axios, HTML, CSS |
+\##  Công nghệ sử dụng
 
-## | Backend | Node.js, Express.js |
+| Thành phần | Công nghệ |
 
-## | Database | MongoDB Atlas |
+|-------------|------------|
 
-## | Quản lý mã nguồn | Git \& GitHub |
+| Frontend | ReactJS, Axios, HTML, CSS |
 
-## 
+| Backend | Node.js, Express.js |
 
-## ---
+| Database | MongoDB Atlas |
 
-## 
+| Quản lý mã nguồn | Git \& GitHub |
 
-## \## ⚙️ Cách chạy dự án
 
-## 
 
-## \### 1:Backend
+---
 
-## ```bash
 
-## cd backend
 
-## npm install
+\## ⚙️ Cách chạy dự án
 
-## npm start (Có thể dung lệnh "node server.js" )
 
-## \### 2:Frontend
 
-## ```bash
+\### 1:Backend
 
-## cd frontend
+```bash
 
-## npm íntall
+cd backend
 
-## npm start
+npm install
 
-## 
+npm start (Có thể dung lệnh "node server.js" )
 
-## 
+\### 2:Frontend
+
+```bash
+
+cd frontend
+
+npm install
+
+npm start
+
+
+
+
 
