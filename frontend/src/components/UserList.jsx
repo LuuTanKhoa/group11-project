@@ -9,7 +9,7 @@ const UserList = ({ reload, onEdit }) => {
   const [editEmail, setEditEmail] = useState("");
 
   // 🔗 Địa chỉ backend (chỉnh lại nếu khác)
-  const BACKEND_URL = "http://10.10.8.244:3000/users";
+  const BACKEND_URL = "http://172.21.14.97:3000/users";
 
   // 🧠 Lấy danh sách user mỗi khi reload thay đổi
   useEffect(() => {

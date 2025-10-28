@@ -6,7 +6,7 @@ const AddUser = ({ reload, setReload, editingUser, setEditingUser }) => {
   const [email, setEmail] = useState("");
   const [errors, setErrors] = useState({ name: "", email: "" }); // ✅ lưu lỗi form
 
-  const BACKEND_URL = "http://10.10.8.244:3000/users";
+  const BACKEND_URL = "http://172.21.14.97:3000/users";
 
   // 🧠 Khi chọn user để sửa → tự điền vào form
   useEffect(() => {
