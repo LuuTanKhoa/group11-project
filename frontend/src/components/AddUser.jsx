@@ -1,102 +1,158 @@
+// src/components/AddUser.jsx
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 
-const AddUser = ({ reload, setReload, editingUser, setEditingUser }) => {
+export default function AddUser({ reload, setReload, editingUser, setEditingUser }) {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
-  const [errors, setErrors] = useState({ name: "", email: "" }); // ✅ lưu lỗi form
+  const [password, setPassword] = useState("");
+  const [role, setRole] = useState("user");
+  const [message, setMessage] = useState("");
 
+<<<<<<< Updated upstream
   const BACKEND_URL = "http://10.10.8.244:3000/users";
+=======
+  // ✅ URL backend (đổi IP cho đúng backend thật)
+  const BACKEND_URL = "http://192.168.38.166:5000/users";
+  const token = localStorage.getItem("jwtToken");
+>>>>>>> Stashed changes
 
-  // 🧠 Khi chọn user để sửa → tự điền vào form
+  // ✅ Nếu đang sửa, tự động đổ dữ liệu lên form
   useEffect(() => {
     if (editingUser) {
-      setName(editingUser.name);
-      setEmail(editingUser.email);
-      setErrors({ name: "", email: "" });
+      setName(editingUser.name || "");
+      setEmail(editingUser.email || "");
+      setRole(editingUser.role || "user");
     } else {
       setName("");
       setEmail("");
-      setErrors({ name: "", email: "" });
+      setPassword("");
+      setRole("user");
     }
   }, [editingUser]);
 
-  // 📝 Gửi form
+  // ✅ Hàm thêm mới hoặc cập nhật user
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setMessage("");
 
-    // ✅ Validation tự làm (không dùng required)
-    const newErrors = { name: "", email: "" };
-    if (!name.trim()) newErrors.name = "Tên không được để trống!";
-    if (!/\S+@\S+\.\S+/.test(email)) newErrors.email = "Email không hợp lệ!";
-
-    // Nếu có lỗi → dừng lại và hiển thị lỗi
-    if (newErrors.name || newErrors.email) {
-      setErrors(newErrors);
+    if (!token) {
+      alert("Bạn chưa đăng nhập!");
       return;
     }
 
+    const userData = { name, email, password, role };
+
     try {
       if (editingUser) {
-        // 🧩 Nếu đang sửa → PUT
-        await axios.put(`${BACKEND_URL}/${editingUser._id}`, { name, email });
-        alert("Cập nhật người dùng thành công!");
+        // 🔹 Cập nhật user
+        await axios.put(`${BACKEND_URL}/${editingUser._id}`, userData, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setMessage("✅ Cập nhật người dùng thành công!");
       } else {
-        // ➕ Nếu thêm mới → POST
-        await axios.post(BACKEND_URL, { name, email });
-        alert("Thêm người dùng thành công!");
+        // 🔹 Thêm user mới
+        await axios.post(BACKEND_URL, userData, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setMessage("✅ Thêm người dùng thành công!");
       }
 
-      setReload(!reload);
+      // Dọn form & reload danh sách
       setEditingUser(null);
+      setReload(!reload);
       setName("");
       setEmail("");
-      setErrors({ name: "", email: "" });
+      setPassword("");
+      setRole("user");
     } catch (err) {
-      console.error("Error saving user:", err);
-      alert("Lỗi khi lưu người dùng!");
+      console.error("❌ Lỗi khi lưu người dùng:", err);
+      setMessage(err.response?.data?.message || "Lỗi khi lưu người dùng!");
     }
   };
 
   return (
-    <div>
-      <h2>{editingUser ? "Sửa người dùng" : "Thêm người dùng"}</h2>
-      <form onSubmit={handleSubmit} noValidate>
-        <div style={{ marginBottom: "10px" }}>
-          <input
-            type="text"
-            placeholder="Tên"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            style={{ marginRight: "10px" }}
-          />
-          {errors.name && <p style={{ color: "red", margin: 0 }}>{errors.name}</p>}
-        </div>
+    <div className="container mt-4">
+      <div
+        className="card shadow p-4"
+        style={{ maxWidth: "500px", margin: "0 auto", borderRadius: "14px" }}
+      >
+        <h3 className="text-center mb-3">
+          {editingUser ? "✏️ Sửa thông tin người dùng" : "➕ Thêm người dùng"}
+        </h3>
 
-        <div style={{ marginBottom: "10px" }}>
-          <input
-            type="email"
-            placeholder="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            style={{ marginRight: "10px" }}
-          />
-          {errors.email && <p style={{ color: "red", margin: 0 }}>{errors.email}</p>}
-        </div>
+        <form onSubmit={handleSubmit}>
+          <div className="mb-3 text-start">
+            <label className="form-label fw-semibold">Họ và tên</label>
+            <input
+              type="text"
+              className="form-control"
+              placeholder="Nhập họ tên..."
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              required
+            />
+          </div>
 
-        <button type="submit">{editingUser ? "Cập nhật" : "Thêm"}</button>
-        {editingUser && (
-          <button
-            type="button"
-            onClick={() => setEditingUser(null)}
-            style={{ marginLeft: "10px" }}
-          >
-            Hủy
-          </button>
+          <div className="mb-3 text-start">
+            <label className="form-label fw-semibold">Email</label>
+            <input
+              type="email"
+              className="form-control"
+              placeholder="Nhập email..."
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              readOnly={!!editingUser} // Không cho sửa email nếu đang edit
+            />
+          </div>
+
+          {!editingUser && (
+            <div className="mb-3 text-start">
+              <label className="form-label fw-semibold">Mật khẩu</label>
+              <input
+                type="password"
+                className="form-control"
+                placeholder="Nhập mật khẩu..."
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+            </div>
+          )}
+
+          <div className="mb-3 text-start">
+            <label className="form-label fw-semibold">Quyền</label>
+            <select
+              className="form-select"
+              value={role}
+              onChange={(e) => setRole(e.target.value)}
+            >
+              <option value="user">👤 User</option>
+              <option value="admin">👑 Admin</option>
+            </select>
+          </div>
+
+          <div className="d-flex justify-content-between">
+            <button type="submit" className="btn btn-success w-50 me-2">
+              {editingUser ? "💾 Lưu" : "➕ Thêm"}
+            </button>
+            {editingUser && (
+              <button
+                type="button"
+                className="btn btn-secondary w-50"
+                onClick={() => setEditingUser(null)}
+              >
+                ❌ Hủy
+              </button>
+            )}
+          </div>
+        </form>
+
+        {message && (
+          <div className="alert alert-info text-center mt-3 p-2">{message}</div>
         )}
-      </form>
+      </div>
     </div>
   );
-};
-
-export default AddUser;
+}

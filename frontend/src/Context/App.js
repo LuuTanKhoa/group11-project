@@ -1,42 +1,86 @@
 import React, { useState } from "react";
-import AddUser from "./components/AddUser";
-import UserList from "./components/UserList";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import SignupForm from "./SignupForm";
+import LoginForm from "./LoginForm";
+import UserList from "./UserList"; // ✅ thêm nếu cần
+import Profile from "./Profile";   // ✅ trang Profile thực
+import Dashboard from "./Dashboard"; // ✅ nếu có giao diện tổng hợp
 
 function App() {
-  const [reload, setReload] = useState(false);
-  const [editingUser, setEditingUser] = useState(null); // 👈 Lưu user đang sửa
+  const [token, setToken] = useState(localStorage.getItem("token") || "");
 
-  // ✅ Gọi khi thêm hoặc cập nhật user xong
-  const handleUserChanged = () => {
-    setReload(!reload); // tải lại danh sách user
-    setEditingUser(null); // reset form về trạng thái thêm mới
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    setToken("");
   };
 
-  // ✅ Khi nhấn “Sửa” trong UserList, cập nhật state editingUser
-  const handleEditUser = (user) => {
-    setEditingUser(user);
+  const handleLoginSuccess = (jwt) => {
+    localStorage.setItem("token", jwt);
+    setToken(jwt);
   };
 
   return (
-    <div className="App" style={{ padding: "20px", maxWidth: "600px", margin: "auto" }}>
-      <h1>React User Management</h1>
+    <Router>
+      <Routes>
+        <Route path="/signup" element={<SignupForm />} />
+        <Route
+          path="/login"
+          element={<LoginForm onLoginSuccess={handleLoginSuccess} />}
+        />
 
-      {/* Form thêm / sửa người dùng */}
-      <AddUser
-        onUserAdded={handleUserChanged}
-        reload={reload}
-        setReload={setReload}
-        editingUser={editingUser}     // 👈 truyền user đang sửa
-        setEditingUser={setEditingUser} // 👈 cho phép form reset sau khi cập nhật
-      />
+        {/* ✅ Dashboard hiển thị menu */}
+        <Route
+          path="/dashboard"
+          element={
+            token ? (
+              <Dashboard token={token} onLogout={handleLogout} />
+            ) : (
+              <Navigate to="/login" />
+            )
+          }
+        />
 
-      {/* Danh sách người dùng */}
-      <UserList
-        reload={reload}
-        onEdit={handleEditUser} // 👈 khi nhấn “Sửa” từ danh sách
-      />
-    </div>
+        {/* ✅ Trang Profile thực tế */}
+        <Route
+          path="/profile"
+          element={
+            token ? (
+              <Profile />
+            ) : (
+              <Navigate to="/login" />
+            )
+          }
+        />
+
+        {/* ✅ Danh sách người dùng */}
+        <Route
+          path="/users"
+          element={
+            token ? (
+              <UserList />
+            ) : (
+              <Navigate to="/login" />
+            )
+          }
+        />
+
+        {/* ✅ Mặc định chuyển về dashboard nếu đã login */}
+        <Route
+          path="/"
+          element={
+            token ? <Navigate to="/dashboard" /> : <Navigate to="/login" />
+          }
+        />
+
+        {/* ✅ Nếu không khớp route */}
+        <Route path="*" element={<Navigate to="/" />} />
+      </Routes>
+    </Router>
   );
 }
 
+<<<<<<< Updated upstream
 export default App;
+=======
+export default App;
+>>>>>>> Stashed changes

@@ -3,114 +3,89 @@ import axios from "axios";
 import UserList from "./UserList";
 
 
-const UserList = ({ reload, onEdit }) => {
-  const [users, setUsers] = useState([]);
-  const [error, setError] = useState("");
-  const [editingUser, setEditingUser] = useState(null); // user đang sửa
-  const [editName, setEditName] = useState("");
-  const [editEmail, setEditEmail] = useState("");
+const BACKEND_URL = "http://192.168.38.166:5000/users";
 
+export default function UserList() {
+  const [users, setUsers] = useState([]);
+  const token = localStorage.getItem("jwtToken");
+
+<<<<<<< Updated upstream
   // 🔗 Địa chỉ backend (chỉnh lại nếu khác)
   const BACKEND_URL = "http://10.10.8.244:3000/users";
 
   // 🧠 Lấy danh sách user mỗi khi reload thay đổi
+=======
+>>>>>>> Stashed changes
   useEffect(() => {
-    setError("");
     axios
-      .get(BACKEND_URL)
-      .then((res) => setUsers(res.data))
-      .catch((err) => {
-        console.error("Error fetching users:", err);
-        setError("Failed to fetch users. Check backend connection.");
-      });
-  }, [reload]);
+      .get(BACKEND_URL, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      .then((res) => {
+        console.log("📦 Dữ liệu từ backend:", res.data);
+        setUsers(res.data);
+      })
+      .catch((err) => console.error("❌ Lỗi khi tải người dùng:", err));
+  }, [token]);
 
-  // 🗑️ Xử lý sự kiện XÓA
   const handleDelete = async (id) => {
     if (window.confirm("Bạn có chắc muốn xóa người dùng này không?")) {
       try {
-        await axios.delete(`${BACKEND_URL}/${id}`);
-        setUsers(users.filter((user) => user._id !== id));
+        await axios.delete(`${BACKEND_URL}/${id}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        alert("🗑️ Xóa thành công!");
+        setUsers(users.filter((u) => u._id !== id));
       } catch (err) {
-        console.error("Error deleting user:", err);
-        alert("Không thể xóa user. Vui lòng thử lại!");
+        console.error("❌ Lỗi khi xóa:", err);
       }
     }
   };
 
-  // ✏️ Bắt đầu chỉnh sửa
-  const handleEdit = (user) => {
-    setEditingUser(user);
-    setEditName(user.name);
-    setEditEmail(user.email);
-  };
-
-  // 💾 Gửi PUT request để cập nhật user
-  const handleUpdate = async () => {
-    try {
-      const updatedUser = { name: editName, email: editEmail };
-      const res = await axios.put(`${BACKEND_URL}/${editingUser._id}`, updatedUser);
-
-      // Cập nhật danh sách trên frontend
-      setUsers(users.map((u) => (u._id === editingUser._id ? res.data : u)));
-      setEditingUser(null);
-      alert("Cập nhật thành công!");
-    } catch (err) {
-      console.error("Error updating user:", err);
-      alert("Không thể cập nhật. Kiểm tra kết nối backend!");
-    }
-  };
-
   return (
-    <div>
-      <h2>User List</h2>
-
-      {/* Hiển thị lỗi nếu có */}
-      {error && <p style={{ color: "red" }}>{error}</p>}
-
-      {/* Nếu đang sửa thì hiển thị form sửa */}
-      {editingUser && (
-        <div style={{ border: "1px solid gray", padding: "10px", marginBottom: "20px" }}>
-          <h3>Chỉnh sửa người dùng</h3>
-          <label>
-            Tên:{" "}
-            <input
-              type="text"
-              value={editName}
-              onChange={(e) => setEditName(e.target.value)}
-            />
-          </label>
-          <br />
-          <label>
-            Email:{" "}
-            <input
-              type="email"
-              value={editEmail}
-              onChange={(e) => setEditEmail(e.target.value)}
-            />
-          </label>
-          <br />
-          <button onClick={handleUpdate}>Lưu</button>
-          <button onClick={() => setEditingUser(null)}>Hủy</button>
+    <div className="container mt-5 text-center">
+      <div className="card shadow p-4 mx-auto" style={{ maxWidth: "800px", borderRadius: "16px" }}>
+        <h2 className="mb-4 text-primary fw-bold">📋 Danh sách người dùng</h2>
+        <div className="table-responsive">
+          <table className="table table-bordered align-middle text-center">
+            <thead className="table-dark">
+              <tr>
+                <th>STT</th>
+                <th>Email</th>
+                <th>Tên</th>
+                <th>Hành động</th>
+              </tr>
+            </thead>
+            <tbody>
+              {users.length > 0 ? (
+                users.map((user, index) => (
+                  <tr key={user._id}>
+                    <td>{index + 1}</td>
+                    <td>{user.email}</td>
+                    <td>{user.name || "—"}</td>
+                    <td>
+                      <div className="d-flex justify-content-center gap-2">
+                        <button className="btn btn-sm btn-primary">✏️ Sửa</button>
+                        <button
+                          className="btn btn-sm btn-danger"
+                          onClick={() => handleDelete(user._id)}
+                        >
+                          🗑️ Xóa
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="4" className="text-muted">Không có người dùng nào.</td>
+                </tr>
+              )}
+            </tbody>
+          </table>
         </div>
-      )}
-
-      {/* Hiển thị danh sách người dùng */}
-      {users.length === 0 ? (
-        <p>Không có người dùng nào.</p>
-      ) : (
-        <ul>
-          {users.map((user) => (
-            <li key={user._id}>
-              {user.name} - {user.email}{" "}
-              <button onClick={() => handleEdit(user)}>Sửa</button>
-              <button onClick={() => handleDelete(user._id)}>Xóa</button>
-            </li>
-          ))}
-        </ul>
-      )}
+        <button className="btn btn-success mt-3 px-4 py-2">➕ Thêm người dùng</button>
+      </div>
     </div>
   );
-};
-
-export default UserList;
+}
