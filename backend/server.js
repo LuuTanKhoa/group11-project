@@ -1,37 +1,69 @@
-const express = require('express');
-const mongoose = require('mongoose');
-const cors = require('cors');
-
-mongoose.set('debug', true);
+// ===== Server khởi động backend =====
+require("dotenv").config();
+const express = require("express");
+const mongoose = require("mongoose");
+const cors = require("cors");
 
 const app = express();
 
-// Middleware
+// ===== Middleware =====
 app.use(cors());
 app.use(express.json());
 
-// 👉 Kết nối MongoDB Atlas
-mongoose.connect('mongodb+srv://phucdatnguyen2505_db_user:123abc@cluster0.hta2207.mongodb.net/?appName=Cluster0', {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-})
-  .then(() => console.log('✅ Connected to MongoDB Atlas'))
-  .catch(err => console.error('❌ MongoDB connection error:', err));
+/* ===================================
+   🧩 Import routes
+   =================================== */
+const authRoutes = require("./routes/auth");
+const profileRoutes = require("./routes/profile");
+const userRoutes = require("./routes/user");
+const extraRoutes = require("./routes/extra");
 
-// 👉 Kiểm tra route có tồn tại không
-try {
-  const userRoutes = require('./routes/user');
-  app.use('/users', userRoutes);
-} catch (err) {
-  console.warn('⚠️ Route ./routes/user.js chưa tồn tại hoặc lỗi import');
-}
+/* ===================================
+   🔗 Sử dụng routes
+   =================================== */
+app.use("/auth", authRoutes);
+app.use("/profile", profileRoutes);
+app.use("/users", userRoutes);
+app.use("/extra", extraRoutes);
 
-// 👉 Chạy server
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+console.log("✅ Đã nạp routes: auth, profile, users, extra!");
 
-// === BACKEND NEW FEATURE TEST ===
-app.get('/test-backend', (req, res) => {
-  res.send('✅ Backend route hoạt động!');
+/* ===================================
+   ⚙️ Kết nối MongoDB Atlas
+   =================================== */
+mongoose
+  .connect(
+    process.env.MONGO_URI ||
+      "mongodb+srv://phucdatnguyen2505_db_user:123@cluster0.hta2207.mongodb.net/?appName=Cluster0"
+  )
+  .then(() => console.log("✅ Connected to MongoDB Atlas"))
+  .catch((err) => console.error("❌ MongoDB connection error:", err));
+
+/* ===================================
+   🚀 Các route cơ bản để test
+   =================================== */
+app.get("/test-backend", (req, res) => {
+  res.send("✅ Backend đang hoạt động!");
 });
 
+app.get("/", (req, res) => {
+  res.send("✅ Server is running");
+});
+
+// Ngăn lỗi favicon từ trình duyệt
+app.get("/favicon.ico", (req, res) => res.status(204).end());
+
+/* ===================================
+   ⚠️ Xử lý route không tồn tại
+   =================================== */
+app.use((req, res) => {
+  res.status(404).json({ message: "🚫 Route không tồn tại trên server." });
+});
+
+/* ===================================
+   🟢 Chạy server
+   =================================== */
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, "0.0.0.0", () => {
+  console.log(`🚀 Server đang chạy tại: http://0.0.0.0:${PORT}`);
+});
