@@ -29,3 +29,11 @@ try {
 // 👉 Chạy server
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+
+
+// === BACKEND NEW FEATURE TEST ===
+app.get('/test-backend', (req, res) => {
+  res.send('✅ Backend route hoạt động!');
+});
+
+
