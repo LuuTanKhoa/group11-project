@@ -1,3 +1,17 @@
+import React from 'react';
+import UserList from "./components/UserList";
+
+
+
+
+const App = () => {
+  return (
+    <div>
+      <h1>Ứng Dụng Quản Lý Người Dùng</h1>
+      <UserList />
+    </div>
+  );
+};
 import React, { useState } from "react";
 import UserList from "./UserList";
 import AddUser from "./AddUser";
